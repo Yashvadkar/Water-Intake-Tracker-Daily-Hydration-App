@@ -10,7 +10,13 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { HydrationEngine } from '@/lib/logic/HydrationEngine'
-import type { HydrationState, ExecutionLog, MilestoneType } from '@/lib/logic/types'
+import type {
+  HydrationState,
+  ExecutionLog,
+  MilestoneType,
+  WaterEntry,
+  DailyRecord
+} from '@/lib/logic/types';
 
 interface HydrationStore {
   // HydrationState properties

@@ -9,7 +9,7 @@
  *   2. Update this file to navigate to the next step instead of completing onboarding.
  *   3. Complete onboarding only in the last step.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View, Pressable, TextInput, StyleSheet,
   KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -31,7 +31,9 @@ export default function OnboardingScreen() {
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState<string | null>(null)
 
-  track('onboarding_started')
+  useEffect(() => {
+    track('onboarding_started')
+  }, [])
 
   async function complete(name?: string) {
     setLoading(true)

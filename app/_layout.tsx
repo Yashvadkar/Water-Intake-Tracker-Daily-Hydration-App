@@ -1,19 +1,20 @@
+import '../global.css'
 import React, { useEffect, useState } from 'react'
-import { View, StyleSheet, Platform, DeviceEventEmitter } from 'react-native'
+import { View, StyleSheet, Platform, DeviceEventEmitter, AppState } from 'react-native'
 import { Stack, useNavigationContainerRef, usePathname } from 'expo-router'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/queryClient'
 import * as Sentry from '@sentry/react-native'
 
-const routingInstrumentation = Sentry.reactNavigationIntegration()
+// const routingInstrumentation = Sentry.reactNavigationIntegration()
 
-Sentry.init({
-  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
-  environment: __DEV__ ? 'development' : 'production',
-  enabled: !__DEV__ && !!process.env.EXPO_PUBLIC_SENTRY_DSN,
-  integrations: [routingInstrumentation],
-  tracesSampleRate: 0,
-})
+// Sentry.init({
+//   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
+//   environment: __DEV__ ? 'development' : 'production',
+//   enabled: !__DEV__ && !!process.env.EXPO_PUBLIC_SENTRY_DSN,
+//   integrations: [routingInstrumentation],
+//   tracesSampleRate: 0,
+// })
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
@@ -41,6 +42,8 @@ import OfflineBanner from '@/components/OfflineBanner'
 import OfflineOverlay from '@/components/OfflineOverlay'
 import { Text } from '@/components/ui/Text'
 import { BG } from '@/lib/theme'
+import { useHydrationStore } from '@/lib/stores/hydrationStore'
+import { HydrationEngine } from '@/lib/logic/HydrationEngine'
 
 // ─── Error boundary ───────────────────────────────────────────────────────────
 // React requires a class component to catch render errors — hooks cannot do this.
@@ -115,7 +118,7 @@ function ScreenTracker() {
 
 // ─── Root layout ──────────────────────────────────────────────────────────────
 
-function RootLayout() {
+function RootLayout(): React.ReactNode {
   const navigationRef = useNavigationContainerRef()
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -137,13 +140,13 @@ function RootLayout() {
 
   useEffect(() => {
     if (navigationRef.current) {
-      routingInstrumentation.registerNavigationContainer(navigationRef)
+      // routingInstrumentation.registerNavigationContainer(navigationRef)
     }
   }, [navigationRef])
 
   useEffect(() => {
     // Configure RevenueCat once at startup, before any user is known
-    configureRevenueCat()
+    // configureRevenueCat()
 
     if (!isSupabaseEnabled) {
       // No credentials — stay on landing page, no errors thrown
@@ -155,7 +158,7 @@ function RootLayout() {
       setIsAuthed(!!session)
       if (session?.user) {
         setOnboardingCompleted(session.user.user_metadata?.onboarding_completed === true)
-        loginRevenueCat(session.user.id)
+        // loginRevenueCat(session.user.id)
         identify(
           session.user.id,
           session.user.email ? { email: session.user.email } : undefined
@@ -172,7 +175,7 @@ function RootLayout() {
       if (event === 'SIGNED_IN' && session?.user) {
         setIsAuthed(true)
         setOnboardingCompleted(session.user.user_metadata?.onboarding_completed === true)
-        loginRevenueCat(session.user.id)
+        // loginRevenueCat(session.user.id)
         identify(
           session.user.id,
           session.user.email ? { email: session.user.email } : undefined
@@ -181,7 +184,7 @@ function RootLayout() {
       if (event === 'SIGNED_OUT') {
         setIsAuthed(false)
         setOnboardingCompleted(null)
-        logoutRevenueCat()
+        // logoutRevenueCat()
         resetIdentity()
       }
       if (event === 'USER_UPDATED' && session?.user) {
@@ -204,10 +207,26 @@ function RootLayout() {
     return () => sub.remove()
   }, [])
 
+//   useEffect(() => {
+//     const subscription = AppState.addEventListener('change', nextAppState => {
+//       if (nextAppState === 'active') {
+//         const storeState = useHydrationStore.getState()
+//         const rolled = HydrationEngine.rolloverIfNeeded(storeState)
+//         if (rolled.date !== storeState.date) {
+//           useHydrationStore.setState(rolled)
+//         }
+//       }
+//     })
+// 
+//     return () => {
+//       subscription.remove()
+//     }
+//   }, [])
+
   // Show blank dark screen while session + i18n checks complete.
   // This prevents a flash of wrong content on launch.
   if (!fontsLoaded || isAuthed === null || !i18nReady || (isAuthed === true && onboardingCompleted === null)) {
-    return <View style={{ flex: 1, backgroundColor: BG }} />
+    return <View style={{ flex: 1, backgroundColor: '#0A2647' }} />;
   }
 
   return (
@@ -228,33 +247,22 @@ function RootLayout() {
                   <ThemeProvider value={customDarkTheme}>
                     <View style={{ flex: 1, backgroundColor: BG }}>
                       <Stack ref={navigationRef} screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: BG } }}>
-
-                        {/* ── Unauthenticated screens ──────────────────────────────────
-                        Accessible only when signed out. When isAuthed flips to true,
-                        Stack.Protected removes these and Expo Router auto-redirects to
-                        the first accessible authenticated screen. */}
-                        <Stack.Protected guard={!isAuthed}>
+                        <Stack.Protected guard={isAuthed === false}>
                           <Stack.Screen name="index" />
                           <Stack.Screen name="(auth)" />
                         </Stack.Protected>
 
-                        {/* ── Onboarding screens ───────────────────────────────────────
-                        Shown when signed in but onboarding not yet completed. */}
-                        <Stack.Protected guard={!!isAuthed && onboardingCompleted === false}>
+                        <Stack.Protected guard={isAuthed === true && onboardingCompleted === false}>
                           <Stack.Screen name="(onboarding)" />
                         </Stack.Protected>
 
-                        {/* ── Authenticated screens ────────────────────────────────────
-                        Accessible only when signed in + onboarding done. */}
-                        <Stack.Protected guard={!!isAuthed && onboardingCompleted === true}>
+                        <Stack.Protected guard={isAuthed === true && onboardingCompleted === true}>
                           <Stack.Screen name="(tabs)" />
                           <Stack.Screen name="detail/[id]" />
                           <Stack.Screen name="settings" />
                           <Stack.Screen name="support" />
                         </Stack.Protected>
 
-                        {/* ── Always-public screens — declared LAST so they don't become
-                        the default redirect target when a protected group flips. ── */}
                         <Stack.Screen name="upgrade" />
                         <Stack.Screen name="privacy" />
                         <Stack.Screen name="terms" />
@@ -276,4 +284,4 @@ function RootLayout() {
   )
 }
 
-export default Sentry.wrap(RootLayout)
+export default RootLayout

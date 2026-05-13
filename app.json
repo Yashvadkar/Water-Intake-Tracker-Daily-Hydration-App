@@ -1,35 +1,30 @@
 {
   "expo": {
-    "name": "MyApp",
-    "slug": "my-app",
+    "name": "HydraFlow",
+    "slug": "hydraflow",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "myapp",
+    "scheme": "hydraflow",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0d0d0d"
+      "backgroundColor": "#061527"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourcompany.myapp",
-      "associatedDomains": [
-        "applinks:REPLACE_WITH_YOUR_DOMAIN"
-      ]
+      "bundleIdentifier": "com.yash.hydraflow",
+      "associatedDomains": []
     },
     "android": {
-      "package": "com.yourcompany.myapp",
+      "package": "com.yash.hydraflow",
+      "softwareKeyboardLayoutMode": "adjustResize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#0d0d0d"
+        "backgroundColor": "#061527"
       },
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-      ],
+      "permissions": [],
       "androidStatusBar": {
         "barStyle": "light-content",
         "backgroundColor": "#0d0d0d",
@@ -41,9 +36,14 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "myapp" }
+            {
+              "scheme": "hydraflow"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -56,7 +56,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0d0d0d",
+          "backgroundColor": "#061527",
           "image": "./assets/splash-icon.png",
           "imageWidth": 200
         }
@@ -72,14 +72,11 @@
           "organization": "your-org"
         }
       ],
-      "@sentry/react-native"
+      "expo-web-browser"
     ],
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID"
-      }
+      "router": {}
     },
-    "owner": "REPLACE_WITH_YOUR_EXPO_OWNER"
+    "owner": "yash"
   }
 }

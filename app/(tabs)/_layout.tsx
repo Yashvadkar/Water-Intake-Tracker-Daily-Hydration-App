@@ -11,7 +11,7 @@ import { House, Compass, Bell, CircleUser } from 'lucide-react-native'
 import TabBar, { TAB_BAR_HEIGHT } from '@/components/TabBar'
 import { BG } from '@/lib/theme'
 
-export default function TabsLayout() {
+export default function TabsLayout(): React.ReactNode {
   return (
     <Tabs
       tabBar={(props) => <TabBar {...props} />}
@@ -32,15 +32,6 @@ export default function TabsLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="explore"
-        options={{
-          tabBarLabel: 'Explore',
-          tabBarIcon: ({ color, size }) => (
-            <Compass size={size} color={color} strokeWidth={1.6} />
-          ),
-        }}
-      />
 
       <Tabs.Screen
         name="activity"
